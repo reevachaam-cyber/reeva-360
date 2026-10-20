@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual Tour 360° | REEVA Residence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- ฟอนต์ภาษาอังกฤษ Cinzel + ภาษาไทย Noto Sans Thai -->
+<link
+  href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap"
+  rel="stylesheet"
+>
+
+
+<!-- โหลดดีไซน์เว็บไซต์ REEVA Premium -->
+<link rel="stylesheet" href="premium-style.css">
+
+</head>
+<body id="top">
+<div class="page">
+  <header class="site-header">
+    <div class="logo-frame"><img class="site-logo" src="assets/reeva-logo.png" alt="REEVA Residence"></div>
+    <div class="header-actions">
+      <a class="main-site-link" href="https://www.reevaresidence.com/" target="_blank" rel="noopener noreferrer">REEVA RESIDENCE <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+  <section class="hero" aria-label="Virtual Tour 360°">
+    <div class="hero-content">
+      <h1>Virtual Tour 360°</h1>
+      <div class="gold-line"></div>
+      <p>เลือกบ้านที่ต้องการชมจากแผนผังโครงการ</p>
+    </div>
+  </section>
+  <main class="experience">
+    <div class="map-header">
+      <div class="map-title">แผนผังโครงการ REEVA</div>
+      <div class="map-hint">คลิกจุดบ้านเพื่อเลือกชม Virtual Tour 360°</div>
+    </div>
+    <div class="map-stage" id="map-stage">
+      <div class="map-content" id="map-content">
+        <img class="project-map" id="project-map" src="assets/project-map.jpg" alt="แผนผังโครงการ REEVA" draggable="false">
+      </div>
+      <div class="map-controls">
+        <button id="zoom-in" type="button" aria-label="ซูมเข้า">+</button>
+        <button id="zoom-out" type="button" aria-label="ซูมออก">−</button>
+        <button id="reset-map" type="button" aria-label="รีเซ็ตแผนผัง">↺</button>
+      </div>
+      <aside class="house-panel" id="house-panel" aria-label="ข้อมูลบ้านที่เลือก" hidden>
+        <div class="panel-top">
+          <h2 class="house-code" id="house-code">A28</h2>
+          <button class="close-panel" id="close-panel" type="button" aria-label="ปิดข้อมูลบ้าน">×</button>
+        </div>
+        <span class="panel-tag">VIRTUAL TOUR</span>
+        <div class="house-photo-box">
+          <img id="house-photo" alt="ภาพตัวอย่างบ้าน" hidden>
+          <div class="photo-placeholder" id="photo-placeholder">
+            <span class="symbol" aria-hidden="true">⌂</span>
+            <strong id="photo-house-name">บ้าน A28</strong>
+            <span>พื้นที่สำหรับภาพตัวอย่างบ้าน<br>รอภาพที่ได้รับการยืนยัน</span>
+          </div>
+        </div>
+        <div class="panel-copy">
+          <h3>สำรวจบ้านในมุมมอง 360°</h3>
+          <p>เข้าชมบรรยากาศภายในบ้านที่เลือกผ่าน Virtual Tour 360°</p>
+        </div>
+        <button class="tour-button" id="tour-button" type="button" disabled>ชมบ้าน 360° (รอเชื่อมระบบ)</button>
+        <div class="panel-note" id="panel-note">ทัวร์ของบ้านหลังนี้ยังไม่ได้เชื่อมกับเว็บไซต์</div>
+      </aside>
+    </div>
+    <div class="map-footer">เลือกบ้านจากแผนผัง เพื่อเข้าชม Virtual Tour 360°</div>
+  </main>
+  <section class="gallery-section" id="gallery">
+    <div class="gallery-heading">
+      <h2>Explore REEVA</h2>
+      <p>ภาพตัวอย่างโครงการและบรรยากาศการพักผ่อน</p>
+    </div>
+    <div class="gallery-track" id="gallery-track" aria-label="ภาพตัวอย่าง REEVA">
+      <div class="gallery-card"><div class="gallery-visual"><img src="assets/my-background.jpg" alt="ภาพบรรยากาศ REEVA"></div><div class="gallery-caption">บรรยากาศ REEVA Residence</div></div>
+      <div class="gallery-card"><div class="gallery-visual"><div class="gallery-empty"><span>▧</span>พื้นที่ภาพตัวอย่าง 2</div></div><div class="gallery-caption">รอภาพเพิ่มเติม</div></div>
+      <div class="gallery-card"><div class="gallery-visual"><div class="gallery-empty"><span>▧</span>พื้นที่ภาพตัวอย่าง 3</div></div><div class="gallery-caption">รอภาพเพิ่มเติม</div></div>
+      <div class="gallery-card"><div class="gallery-visual"><div class="gallery-empty"><span>▧</span>พื้นที่ภาพตัวอย่าง 4</div></div><div class="gallery-caption">รอภาพเพิ่มเติม</div></div>
+    </div>
+    <div class="gallery-navigation">
+      <div class="gallery-progress" aria-hidden="true"><div class="gallery-progress-thumb" id="gallery-progress-thumb"></div></div>
+      <div class="gallery-arrows">
+        <button class="gallery-arrow" id="gallery-prev" type="button" aria-label="เลื่อนไปภาพก่อนหน้า">‹</button>
+        <button class="gallery-arrow next" id="gallery-next" type="button" aria-label="เลื่อนไปภาพถัดไป">›</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- =====================================================
+     ระบบควบคุม REEVA Premium
+     - ซูมและลากแผนผัง
+     - จุดบ้าน A28 / A29
+     - แผงข้อมูลบ้าน
+     - Gallery และแอนิเมชัน
+===================================================== -->
+<script src="premium-app.js"></script>
+</body>
+</html>

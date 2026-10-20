@@ -1,0 +1,268 @@
+
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <title>Virtual Tour 360° | REEVA Residence</title>
+
+  <!-- ==========================================
+       01. ดีไซน์หน้าดูทัวร์ส่วนกลาง
+       ใช้สีแบรนด์ REEVA
+  =========================================== -->
+  <style>
+
+    :root {
+      --reeva-blue: #00387a;
+      --reeva-cream: #f5e58d;
+      --reeva-white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #000000;
+      overflow: hidden;
+    }
+
+
+/* พื้นที่ทัวร์อยู่ใต้แถบ REEVA ด้านบน */
+.tour-frame {
+  position: fixed;
+  top: 64px;
+  left: 0;
+
+  width: 100%;
+  height: calc(100% - 64px);
+
+  border: none;
+  background: #000000;
+}
+
+    /* ==========================================
+       02. ปุ่มกลับไปหน้าแผนผัง
+
+       แสดงที่มุมขวาบน
+       และลอยอยู่เหนือภาพ 360°
+    =========================================== */
+
+/* ปุ่มกลับอยู่บนแถบ REEVA ด้านบน */
+.back-button {
+  position: fixed;
+  top: 9px;
+  right: 14px;
+  z-index: 1000;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+  min-height: 44px;
+  padding: 10px 18px;
+
+  border: 1px solid var(--reeva-cream);
+  border-radius: 30px;
+
+  background: var(--reeva-blue);
+  color: var(--reeva-white);
+
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, .25);
+
+  transition:
+    background .2s ease,
+    transform .2s ease;
+}
+
+
+    .back-button:hover {
+      background: #16549a;
+      transform: translateY(-2px);
+    }
+
+    .back-button:focus-visible {
+      outline: 3px solid var(--reeva-cream);
+      outline-offset: 3px;
+    }
+
+    /* ==========================================
+       03. รองรับหน้าจอโทรศัพท์
+    =========================================== */
+    @media (max-width: 700px) {
+
+      .back-button {
+        top: 12px;
+        right: 12px;
+
+        padding: 10px 14px;
+        font-size: 12px;
+      }
+
+    }
+
+/* =====================================================
+   04. แถบ REEVA ด้านบน
+
+   แยกปุ่มกลับออกจากพื้นที่ทัวร์ 360°
+   ความสูง 64px เท่ากับระยะที่เว้นไว้
+===================================================== */
+
+body::before {
+  content: "REEVA 360°";
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 64px;
+  z-index: 999;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 20px;
+
+  background: var(--reeva-blue);
+  color: var(--reeva-white);
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ==========================================
+       04. ปุ่มกลับไปเลือกบ้าน
+       กลับสู่แผนผัง Premium
+  =========================================== -->
+  <a
+    class="back-button"
+    href="premium-preview.html"
+  >
+    <span aria-hidden="true">←</span>
+    กลับไปเลือกบ้าน
+  </a>
+
+
+  <!-- ==========================================
+       05. กรอบแสดง Virtual Tour 360°
+
+       JavaScript จะเปลี่ยน src
+       ตามบ้านที่ผู้ใช้เลือก
+  =========================================== -->
+  <iframe
+    id="tour-frame"
+    class="tour-frame"
+    title="REEVA Virtual Tour 360°"
+    allowfullscreen
+  ></iframe>
+
+
+  <!-- ==========================================
+       06. ระบบเลือกทัวร์ตามรหัสบ้าน
+
+       ตัวอย่าง:
+       tour-viewer.html?house=A28
+
+       ระบบจะโหลดทัวร์ A28 โดยอัตโนมัติ
+
+       บ้านหลังใหม่:
+       เพิ่มข้อมูลลงใน tourPaths
+       ไม่ต้องสร้างหน้า Viewer ใหม่
+  =========================================== -->
+  <script>
+    "use strict";
+
+    /*
+      รายชื่อบ้านและที่อยู่ทัวร์ 360°
+
+      เพิ่มบ้านในอนาคตได้ในส่วนนี้
+      โดยไม่ต้องแก้ไฟล์ Marzipano
+    */
+    const tourPaths = {
+      A28: "tours/A28/app-files/index.html"
+    };
+
+
+    /* อ่านรหัสบ้านจากลิงก์ */
+    const params = new URLSearchParams(
+      window.location.search
+    );
+
+    const houseId = params.get("house");
+
+    /* กรอบแสดงทัวร์ */
+    const tourFrame = document.getElementById(
+      "tour-frame"
+    );
+
+
+    /* ==========================================
+       07. โหลดทัวร์บ้านที่เลือก
+    =========================================== */
+
+    if (
+      houseId &&
+      Object.prototype.hasOwnProperty.call(
+        tourPaths,
+        houseId
+      )
+    ) {
+
+      tourFrame.src = tourPaths[houseId];
+
+      document.title =
+        `บ้าน ${houseId} | REEVA Virtual Tour 360°`;
+
+    } else {
+
+      /* บ้านที่ยังไม่มีทัวร์จะไม่โหลดไฟล์ผิด */
+      tourFrame.remove();
+
+      const message = document.createElement("div");
+
+      message.style.cssText = `
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        color: white;
+        text-align: center;
+        font-size: 18px;
+      `;
+
+      message.textContent =
+        "ยังไม่มี Virtual Tour สำหรับบ้านหลังนี้";
+
+      document.body.appendChild(message);
+    }
+
+  </script>
+
+</body>
+</html>
