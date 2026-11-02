@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#00387a">
+  <title>REEVA | Virtual Tour 360°</title>
+  <style>
+    :root { color-scheme: light; --blue:#00387a; --gold:#f5e58d; --ink:#162238; }
+    * { box-sizing: border-box; }
+    html, body { margin:0; min-height:100%; }
+    body { font-family:system-ui,"Noto Sans Thai",Arial,sans-serif; color:var(--ink); background:#f5f7fa; }
+    header { background:var(--blue); color:white; display:flex; gap:14px; justify-content:space-between; align-items:center; padding:12px clamp(16px,4vw,36px); min-height:76px; }
+    .brand { display:flex; gap:12px; align-items:center; text-decoration:none; color:white; min-width:0; }
+    .brand img { width:60px; height:48px; object-fit:contain; }
+    .brand-text strong { display:block; font-size:15px; letter-spacing:.09em; }
+    .brand-text span { display:block; opacity:.85; font-size:12px; }
+    .actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
+    button, .home { border:1px solid var(--gold); padding:10px 15px; border-radius:8px; background:var(--gold); color:var(--blue); font:inherit; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; }
+    .home { background:transparent; color:white; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    button:focus-visible, a:focus-visible { outline:3px solid var(--gold); outline-offset:3px; }
+    main { max-width:1800px; margin:0 auto; padding:clamp(10px,2vw,22px); }
+    .intro { display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px; margin:0 2px 12px; }
+    h1 { margin:0; font-size:clamp(18px,3vw,26px); }
+    .intro p { margin:4px 0 0; font-size:13px; color:#536276; }
+    .notice { margin:0 0 12px; font-size:12px; color:#42576d; }
+    .viewer { border-radius:14px; overflow:hidden; background:#101820; box-shadow:0 12px 30px rgba(12,27,48,.13); }
+    iframe { display:block; width:100%; height:min(75dvh,850px); min-height:420px; border:0; }
+    .empty { padding:70px 24px; text-align:center; color:white; font-size:18px; }
+    [hidden] { display:none!important; }
+    #feedback { margin:10px 2px; min-height:20px; font-size:13px; }
+    footer { padding:12px 20px 24px; text-align:center; color:#657080; font-size:12px; }
+    @media(max-width:600px) {
+      header { padding:10px 12px; align-items:flex-start; flex-wrap:wrap; }
+      .brand { flex:1; }
+      .actions { width:100%; }
+      .actions>* { flex:1; text-align:center; }
+      iframe { height:calc(100dvh - 215px); min-height:380px; }
+      main { padding:8px; }
+      .viewer { border-radius:8px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="https://www.reevaresidence.com/" aria-label="REEVA Residence">
+      <img src="assets/reeva-logo.png" alt="" onerror="this.style.display='none'">
+      <span class="brand-text"><strong>REEVA RESIDENCE</strong><span>Virtual Tour 360°</span></span>
+    </a>
+    <nav class="actions" aria-label="ทัวร์">
+      <button id="share" type="button" disabled>แชร์ลิงก์ทัวร์</button>
+      <a class="home" href="https://www.reevaresidence.com/">เว็บไซต์ REEVA</a>
+    </nav>
+  </header>
+  <main>
+    <section class="intro" aria-label="รายละเอียดบ้าน">
+      <div><h1 id="tour-title">Virtual Tour 360°</h1><p>สำรวจบรรยากาศบ้านเสมือนจริง หมุนภาพและแตะลูกศรเพื่อเดินชมแต่ละห้อง</p></div>
+    </section>
+    <p class="notice">ลิงก์นี้สามารถส่งต่อให้บุคคลอื่นได้ จึงไม่ควรใช้กับภาพที่ต้องเก็บเป็นความลับ</p>
+    <div class="viewer">
+      <iframe id="tour-frame" title="ทัวร์บ้าน REEVA 360 องศา" allow="fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" hidden></iframe>
+      <div id="empty" class="empty" role="alert">กำลังตรวจสอบลิงก์ทัวร์...</div>
+    </div>
+    <p id="feedback" role="status" aria-live="polite"></p>
+  </main>
+  <footer>REEVA Residence · ทัวร์ 360° สำหรับส่งต่อผ่านลิงก์</footer>
+  <script>
+    "use strict";
+    // Pilot registry: do not put homeowner-only content here before approval.
+    // "Shared" means link-shareable, NOT password-protected or access-restricted.
+    const tours = Object.freeze({
+      A28: Object.freeze({
+        label: "บ้าน A28",
+        src: "tours/A28/app-files/index.html"
+      })
+    });
+    const params = new URLSearchParams(window.location.search);
+    const house = (params.get("house") || "").trim().toUpperCase();
+    const item = Object.prototype.hasOwnProperty.call(tours, house) ? tours[house] : null;
+    const frame = document.getElementById("tour-frame");
+    const empty = document.getElementById("empty");
+    const feedback = document.getElementById("feedback");
+    const share = document.getElementById("share");
+    if (!item) {
+      empty.textContent = "ไม่พบ Virtual Tour สำหรับลิงก์นี้ กรุณาตรวจสอบลิงก์ที่ได้รับ";
+      document.title = "ไม่พบ Virtual Tour | REEVA";
+    } else {
+      document.getElementById("tour-title").textContent = "Virtual Tour 360° | " + item.label;
+      document.title = item.label + " | REEVA Virtual Tour 360°";
+      frame.src = item.src;
+      frame.hidden = false;
+      empty.hidden = true;
+      share.disabled = (window.location.protocol === "file:");
+    }
+    async function copyUrl(url) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+        return true;
+      }
+      const input = document.createElement("textarea");
+      input.value = url;
+      input.style.position = "fixed";
+      input.style.opacity = "0";
+      document.body.appendChild(input);
+      input.select();
+      const ok = document.execCommand("copy");
+      input.remove();
+      return ok;
+    }
+    share.addEventListener("click", async () => {
+      if (!item) return;
+      const url = new URL(window.location.href);
+      url.search = "?house=" + encodeURIComponent(house);
+      url.hash = "";
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: document.title, url: url.href });
+          feedback.textContent = "เปิดเมนูแชร์ลิงก์แล้ว";
+        } else if (await copyUrl(url.href)) {
+          feedback.textContent = "คัดลอกลิงก์ทัวร์แล้ว สามารถส่งต่อให้ผู้สนใจได้";
+        } else {
+          feedback.textContent = "กรุณาคัดลอกลิงก์จากแถบที่อยู่ของเบราว์เซอร์";
+        }
+      } catch (error) {
+        if (error && error.name === "AbortError") return;
+        feedback.textContent = "ไม่สามารถแชร์อัตโนมัติได้ กรุณาคัดลอกลิงก์จากแถบที่อยู่";
+      }
+    });
+  </script>
+</body>
+</html>
