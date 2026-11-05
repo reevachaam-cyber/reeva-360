@@ -51,6 +51,7 @@
     </a>
     <nav class="actions" aria-label="ทัวร์">
       <button id="share" type="button" disabled>แชร์ลิงก์ทัวร์</button>
+      <button id="copy" type="button" disabled>คัดลอกลิงก์</button>
       <a class="home" href="https://www.reevaresidence.com/">เว็บไซต์ REEVA</a>
     </nav>
   </header>
@@ -58,7 +59,7 @@
     <section class="intro" aria-label="รายละเอียดบ้าน">
       <div><h1 id="tour-title">Virtual Tour 360°</h1><p>สำรวจบรรยากาศบ้านเสมือนจริง หมุนภาพและแตะลูกศรเพื่อเดินชมแต่ละห้อง</p></div>
     </section>
-    <p class="notice">ลิงก์นี้สามารถส่งต่อให้บุคคลอื่นได้ จึงไม่ควรใช้กับภาพที่ต้องเก็บเป็นความลับ</p>
+    <p class="notice">ทัวร์นี้เป็นต้นแบบสำหรับแชร์ลิงก์ ผู้ได้รับลิงก์สามารถส่งต่อได้ และยังไม่มีระบบรหัสผ่านเพื่อป้องกันภาพภายในบ้าน</p>
     <div class="viewer">
       <iframe id="tour-frame" title="ทัวร์บ้าน REEVA 360 องศา" allow="fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" hidden></iframe>
       <div id="empty" class="empty" role="alert">กำลังตรวจสอบลิงก์ทัวร์...</div>
@@ -83,6 +84,7 @@
     const empty = document.getElementById("empty");
     const feedback = document.getElementById("feedback");
     const share = document.getElementById("share");
+    const copy = document.getElementById("copy");
     if (!item) {
       empty.textContent = "ไม่พบ Virtual Tour สำหรับลิงก์นี้ กรุณาตรวจสอบลิงก์ที่ได้รับ";
       document.title = "ไม่พบ Virtual Tour | REEVA";
@@ -93,11 +95,22 @@
       frame.hidden = false;
       empty.hidden = true;
       share.disabled = (window.location.protocol === "file:");
+      copy.disabled = share.disabled;
+    }
+    function tourLink() {
+      const url = new URL(window.location.href);
+      url.search = "?house=" + encodeURIComponent(house);
+      url.hash = "";
+      return url.href;
     }
     async function copyUrl(url) {
       if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(url);
-        return true;
+        try {
+          await navigator.clipboard.writeText(url);
+          return true;
+        } catch (error) {
+          // Some in-app browsers reject clipboard access: try legacy fallback.
+        }
       }
       const input = document.createElement("textarea");
       input.value = url;
@@ -105,20 +118,29 @@
       input.style.opacity = "0";
       document.body.appendChild(input);
       input.select();
-      const ok = document.execCommand("copy");
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch (error) { ok = false; }
       input.remove();
       return ok;
     }
+    copy.addEventListener("click", async () => {
+      if (!item || copy.disabled) return;
+      try {
+        feedback.textContent = (await copyUrl(tourLink()))
+          ? "คัดลอกลิงก์ทัวร์แล้ว พร้อมส่งต่อให้ลูกค้าผ่าน LINE"
+          : "กรุณาคัดลอกลิงก์จากแถบที่อยู่ของเบราว์เซอร์";
+      } catch (error) {
+        feedback.textContent = "กรุณาคัดลอกลิงก์จากแถบที่อยู่ของเบราว์เซอร์";
+      }
+    });
     share.addEventListener("click", async () => {
-      if (!item) return;
-      const url = new URL(window.location.href);
-      url.search = "?house=" + encodeURIComponent(house);
-      url.hash = "";
+      if (!item || share.disabled) return;
+      const url = tourLink();
       try {
         if (navigator.share) {
-          await navigator.share({ title: document.title, url: url.href });
+          await navigator.share({ title: document.title, url });
           feedback.textContent = "เปิดเมนูแชร์ลิงก์แล้ว";
-        } else if (await copyUrl(url.href)) {
+        } else if (await copyUrl(url)) {
           feedback.textContent = "คัดลอกลิงก์ทัวร์แล้ว สามารถส่งต่อให้ผู้สนใจได้";
         } else {
           feedback.textContent = "กรุณาคัดลอกลิงก์จากแถบที่อยู่ของเบราว์เซอร์";
