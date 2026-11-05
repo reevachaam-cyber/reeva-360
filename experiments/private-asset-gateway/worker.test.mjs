@@ -94,3 +94,40 @@ test("unknown object yields 404",async()=>{
 test("missing bindings fail closed",async()=>{
   assert.equal((await worker.fetch(request(),{})).status,503);
 });
+
+test("tiles require the same valid token as the HTML",async()=>{
+  const {env,counts}=makeEnv();
+  const res=await worker.fetch(request("/t/"+token+"/tiles/0/1/f/0/0.jpg"),env);
+  assert.equal(res.status,404);
+  assert.equal(counts().accessCount,1);
+  assert.equal(counts().objectCount,1);
+});
+test("revoking token blocks HTML and all tile requests",async()=>{
+  const {env,counts}=makeEnv({enabled:false});
+  for (const path of [route,"/t/"+token+"/tiles/0/1/f/0/0.jpg"]) {
+    assert.equal((await worker.fetch(request(path),env)).status,404);
+  }
+  assert.equal(counts().objectCount,0);
+});
+test("path traversal segments are rejected before R2",async()=>{
+  const {env,counts}=makeEnv();
+  const res=await worker.fetch(request("/t/"+token+"/%2e%2e/secret.jpg"),env);
+  assert.equal(res.status,404);
+  assert.equal(counts().objectCount,0);
+});
+test("double-encoded path characters are rejected before R2",async()=>{
+  const {env,counts}=makeEnv();
+  const res=await worker.fetch(request("/t/"+token+"/tiles%252Fsecret.jpg"),env);
+  assert.equal(res.status,404);
+  assert.equal(counts().objectCount,0);
+});
+test("consent must be the boolean true (not a string)",async()=>{
+  const {env,counts}=makeEnv({consentConfirmed:"true"});
+  assert.equal((await worker.fetch(request(),env)).status,404);
+  assert.equal(counts().objectCount,0);
+});
+test("a malformed namespace prefix cannot read unrelated houses",async()=>{
+  const {env,counts}=makeEnv({prefix:"homes/EXAMPLE/../OTHER/"});
+  assert.equal((await worker.fetch(request(),env)).status,404);
+  assert.equal(counts().objectCount,0);
+});
