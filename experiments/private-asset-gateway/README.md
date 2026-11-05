@@ -49,3 +49,15 @@ The token itself is not written to KV. Send it only to the intended homeowner ov
 
 ## Next decision checkpoint
 Select whether REEVA will adopt a private R2 + Worker + KV hosting stack. This is a **material external service and billing decision**; do not activate it without owner approval. Meanwhile the existing Wix A28 link-sharing test continues working on its public assets.
+
+## Staff link control helpers (branch-only)
+
+- `issue-link.mjs`: creates a 256-bit cryptographically random share URL and corresponding SHA-256 key; requires a verified house identifier and explicit consent flag. Outputs remain on the trusted operator's machine. Nothing is sent to Cloudflare automatically.
+- `revoke-link.mjs`: reads an existing link from standard input, prints only the SHA-256 KV key that an authorized administrator can disable or delete, and does not issue API writes or display the original token.
+- A KV record should be created only once the corresponding private R2 object tree exists, the R2 bucket is confirmed non-public, and homeowner consent is recorded.
+- **The helpers are not a staff dashboard** and do not deploy a Worker. Revocation can take time to propagate across KV locations.
+- Unit test suite now contains 18 cases. Only the 13 earlier simulated contract checks have been run; the full 18 Node tests must be executed before release.
+
+## What must not change in production
+
+The existing `reeva-360` Cloudflare Pages project is running its own `main` production deployment. The new Worker must use a separate name, script, R2 bucket and KV namespace; no Pages redeploys, route replacements or GitHub merges as part of this pilot.
