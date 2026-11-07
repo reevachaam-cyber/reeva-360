@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "note": "EXAMPLE ONLY. Not used for live authorization. Never put private homeowner media, passwords, tokens, or credentials in this public repository.",
+  "tours": [
+    {
+      "houseCode": "A28",
+      "visibility": "PUBLIC",
+      "sharing": "LINK",
+      "passwordRequired": false,
+      "assetsMode": "EXISTING_PUBLIC",
+      "ownerConsent": "REQUIRES_VERIFICATION",
+      "enabled": true,
+      "assetPrefix": "tours/A28/app-files/",
+      "displayOnMainWix": false
+    },
+    {
+      "houseCode": "DEMO-PRIVATE",
+      "visibility": "SHARED",
+      "sharing": "LINK",
+      "passwordRequired": true,
+      "assetsMode": "PRIVATE_R2",
+      "ownerConsent": "REQUIRED",
+      "enabled": false,
+      "assetPrefix": "private/<house-id>/",
+      "displayOnMainWix": false
+    }
+  ]
+}
